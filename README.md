@@ -45,31 +45,36 @@ print(result)
 
 ---
 
-Example
+Real case
 
-Input:
-"The answer is 42 because 6 * 9 = 42"
+Example:
 
 LLM output:
-Plausible
-
-Reality:
-Incorrect
+"The answer is 42 because 6 * 9 = 42"
 
 llm-error-gate:
 RISK
+
+Ground truth:
+Incorrect
 
 ---
 
 Benchmark (early)
 
-TOTAL CASES: 50
+TOTAL CASES: 30
 
-Error rate without gate: 40%
-Error rate in flagged (RISK): 70%
-Error rate in SAFE: 15%
+Error rate without gate: XX%
+Error rate in RISK: XX%
+Error rate in SAFE: XX%
 
-This shows that structurally flagged outputs contain significantly more real errors.
+Flagged outputs contain a higher concentration of real errors.
+
+---
+
+Demo
+
+python demo/run_demo.py
 
 ---
 
@@ -95,7 +100,7 @@ It does not rely on:
 
 - semantic interpretation
 - external knowledge bases
-- prompt engineering tricks
+- prompt engineering
 
 It focuses only on detecting instability patterns.
 
@@ -107,35 +112,34 @@ Without structural filtering:
 
 - plausible errors pass through
 - debugging becomes reactive
-- production systems degrade over time
+- production systems degrade
 
 With llm-error-gate:
 
 - unstable outputs are flagged early
 - error surfaces become visible
-- system reliability increases
+- system reliability improves
 
 ---
 
 Status
 
 Early version.
-Actively evolving with real-case benchmarks.
+Benchmark expanding with real-world cases.
 
 ---
 
-Roadmap
+Try it on your data
 
-- Extended benchmarks (GSM-style variants)
-- Integration examples (API / pipeline)
-- Performance optimization
-- Visualization of risk patterns
+If you are working with LLM outputs:
+
+- share a sample
+- get a structural risk report
+
+Open an issue or reach out.
 
 ---
 
-Contact
+License
 
-For testing, integration, or collaboration:
-
-- open an issue
-- reach out directly
+MIT
