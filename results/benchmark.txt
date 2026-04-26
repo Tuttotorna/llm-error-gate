@@ -1,0 +1,5 @@
+TOTAL CASES: 30
+
+Error rate without gate: XX%
+Error rate in RISK: XX%
+Error rate in SAFE: XX%
