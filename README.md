@@ -83,7 +83,7 @@ guarantee correctness
 
 act as a semantic oracle
 
-use external knowledge as ground truth
+use external knowledge as final ground truth
 
 
 Its output is only a risk signal.
@@ -129,24 +129,69 @@ The output is fluent and formatted, but structurally unsafe.
 
 ---
 
-Benchmark status
+Current benchmark
 
-Current benchmark file:
+The repository includes a minimal reproducible toy benchmark.
 
-results/benchmark.txt
+Benchmark files:
 
-Current public benchmark status:
+results/data.jsonl
+results/scored.jsonl
+scripts/run_benchmark.py
+scripts/analyze_results.py
 
-TOTAL CASES: 30
+Current toy benchmark result:
 
-Error rate without gate: XX%
-Error rate in RISK: XX%
-Error rate in SAFE: XX%
+TOTAL CASES: 6
 
-These values are placeholders and must not be presented as final results.
+Error rate without gate: 50.00%
+Error rate in RISK: 100.00% (3/3)
+Error rate in SAFE: 0.00% (0/3)
 
-This repository is currently in early validation state.
-The next required step is to replace placeholder values with measured results from a reproducible benchmark.
+SEPARATION: 100.00%
+CORE TEST: PASS
+
+Interpretation:
+
+In this toy benchmark, incorrect outputs are concentrated in the RISK group.
+
+Important limitation:
+
+This is not yet evidence of general performance.
+It only proves that the repository now has a reproducible benchmark pipeline.
+
+Next required step:
+
+replace toy cases with a larger, fixed, public benchmark dataset
+
+
+---
+
+Run the benchmark
+
+From the repository root:
+
+python scripts/run_benchmark.py
+python scripts/analyze_results.py
+
+Expected output includes:
+
+LLM ERROR GATE — BENCHMARK REPORT
+
+TOTAL CASES: 6
+ERROR RATE WITHOUT GATE: 50.00%
+
+GATE DISTRIBUTION:
+{'RISK': 3, 'SAFE': 3}
+
+ERROR CONCENTRATION:
+Error rate in RISK: 100.00% (3/3)
+Error rate in SAFE: 0.00% (0/3)
+
+SEPARATION: 100.00%
+
+CORE TEST:
+PASS: real errors are more concentrated in RISK than SAFE
 
 
 ---
@@ -197,7 +242,7 @@ llm-error-gate
 
 Gate statuses
 
-The minimal status model is:
+The current minimal status model is:
 
 SAFE
 RISK
@@ -214,6 +259,79 @@ LOW_CONFIDENCE
 RISK
 BLOCK
 ESCALATE
+
+
+---
+
+Current implementation
+
+The current benchmark gate is intentionally simple.
+
+It is based on explicit structural-risk patterns in the toy dataset.
+
+Current function:
+
+gate(output_text) -> gate_status, risk_score
+
+Current output fields:
+
+{
+  "id": "case_001",
+  "llm_output": "The answer is 42 because 6 * 9 = 42.",
+  "is_correct": false,
+  "gate_status": "RISK",
+  "risk_score": 0.9
+}
+
+This is not the final gate.
+
+It is the first reproducible pipeline:
+
+data -> gate -> scored results -> analysis report
+
+
+---
+
+Minimal benchmark format
+
+A benchmark record should contain:
+
+{
+  "id": "case_001",
+  "input": "question or task",
+  "llm_output": "model output",
+  "ground_truth": "expected result or label",
+  "is_correct": false,
+  "gate_status": "RISK",
+  "risk_score": 0.82
+}
+
+The current toy dataset uses a reduced form:
+
+{
+  "id": "case_001",
+  "llm_output": "The answer is 42 because 6 * 9 = 42.",
+  "is_correct": false
+}
+
+
+---
+
+Success condition
+
+The central test is:
+
+Are real errors concentrated more strongly in RISK than in SAFE?
+
+Formal minimal condition:
+
+error_rate(RISK) > error_rate(SAFE)
+
+The stronger the separation, the more useful the gate.
+
+The gate does not need to catch every error.
+
+It needs to make hidden risk visible early enough to reduce downstream damage.
 
 
 ---
@@ -295,14 +413,20 @@ a public README
 
 an MIT license
 
-an early benchmark placeholder file
+a toy benchmark dataset
+
+a reproducible benchmark runner
+
+a reproducible analysis script
+
+generated scored results
 
 
 The project is not yet a finished package and should not be advertised as a complete production library.
 
 Correct current claim:
 
-early structural risk-gate prototype
+early structural risk-gate prototype with reproducible toy benchmark
 
 Incorrect current claim:
 
@@ -311,78 +435,41 @@ finished production-ready detector
 
 ---
 
-Next steps
+Roadmap
 
 Required next steps:
 
-1. define a fixed test dataset
+1. expand the benchmark dataset
 
 
-2. define ground truth labels
+2. add input prompts and ground truth fields
 
 
-3. run the gate on all cases
+3. test multiple LLM failure categories
 
 
-4. compute SAFE / RISK distributions
+4. separate reasoning errors from factual errors
 
 
-5. measure error concentration inside RISK
+5. measure false positives and false negatives
 
 
-6. replace benchmark placeholders with real values
+6. replace pattern-based toy gate with structural scoring
 
 
-7. add reproducible scripts
+7. connect the gate to OMNIA-style measurement
 
 
-8. publish examples and failure cases
+8. publish reproducible benchmark reports
 
 
 
-Minimum reproducible target:
+Minimum useful future target:
 
-python demo/run_demo.py
 python scripts/run_benchmark.py
 python scripts/analyze_results.py
 
-
----
-
-Minimal benchmark format
-
-A useful benchmark record should contain:
-
-{
-  "id": "case_001",
-  "input": "question or task",
-  "llm_output": "model output",
-  "ground_truth": "expected result or label",
-  "is_correct": false,
-  "gate_status": "RISK",
-  "risk_score": 0.82
-}
-
-The benchmark should answer one central question:
-
-Are real errors concentrated more strongly in RISK than in SAFE?
-
-If yes, the gate has practical value.
-
-
----
-
-Success condition
-
-The project becomes useful if:
-
-error_rate(RISK) > error_rate(SAFE)
-
-The stronger the separation, the more useful the gate.
-
-The gate does not need to catch every error.
-
-It needs to make hidden risk visible early enough to reduce downstream damage.
+with a non-toy dataset.
 
 
 ---
